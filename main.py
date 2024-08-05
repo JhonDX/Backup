@@ -2,6 +2,10 @@ import os
 from datetime import date
 import configparser
 import shutil
+from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG
+from logging import critical, error, warning, info, debug
+from logging import basicConfig
+
 from tkinter import *
 
 #COPIAR BACKUP
@@ -10,6 +14,7 @@ from tkinter import *
 
 
 #USER UPLOAD SUPORTE@GACCBAHIA.ORG.BR
+
 
 # TIME
 d = date.today().day
@@ -55,7 +60,6 @@ else:
     pass
 if os.path.exists(f'{BACKUP}/{ano}/{mes}-{ano}/{dia}-{mes}-{ano}') == False:
     os.mkdir(f'{BACKUP}/{ano}/{mes}-{ano}/{dia}-{mes}-{ano}')
-    os.mkdir(f'{BACKUP}/{ano}/{mes}-{ano}/{dia}-{mes}-{ano}/log')
 else:
     pass
 if os.path.exists(f'{BACKUP}/{ano}/{mes}-{ano}/{dia}-{mes}-{ano}/log') == False:
@@ -63,8 +67,15 @@ if os.path.exists(f'{BACKUP}/{ano}/{mes}-{ano}/{dia}-{mes}-{ano}/log') == False:
 else:
     pass
 
-
 DIR_BACKUP_SAVE = f'{BACKUP}/{ano}/{mes}-{ano}/{dia}-{mes}-{ano}/'
+DIR_LOG_SAVE = f'{BACKUP}/{ano}/{mes}-{ano}/{dia}-{mes}-{ano}/log/log.txt'
+
+basicConfig(
+    level=DEBUG,
+    filename=DIR_LOG_SAVE,
+    filemode='a',
+    format=':%(asctime)s|%(message)s|'
+)
 
 
 
@@ -72,7 +83,6 @@ DIR_BACKUP_SAVE = f'{BACKUP}/{ano}/{mes}-{ano}/{dia}-{mes}-{ano}/'
 # COPIA COM DATA
 COUNT = 1
 MAX_COUNT = 50  # Defina o valor máximo para COUNT conforme necessário
-
 while COUNT <= MAX_COUNT:
     try:
         DIR_BACKUP = configad['NOME_BACKUP_COM_DATA'][f'DIR_BACKUP_{COUNT}']
@@ -81,35 +91,29 @@ while COUNT <= MAX_COUNT:
         SRC = str(f'{DIR_BACKUP}{DIR_NOME}{YMD}{EXT}')
         DST = str(f'{DIR_BACKUP_SAVE}{DIR_NOME}{YMD}{EXT}')
         arquivo = shutil.copyfile(src=SRC, dst=DST)
-        print(f'Copiando Arquivo!: {arquivo}')
+        debug(f'{arquivo}, O Arquivo foi copiado')
 
     except KeyError as erro:
-        # Se uma das chaves principais não for encontrada, trata-se o erro
-        print(f"Chave não encontrada: {erro}")
-        # Dependendo do comportamento desejado, você pode decidir se deve continuar ou não
-        break  # Saímos do loop externo se uma chave não for encontrada
+        debug(f'Arquivo não encontrado {erro}')
+        break
 
     COUNT += 1
 
+
+
+
 COUNT = 1
 MAX_COUNT = 50  # Defina o valor máximo para COUNT conforme necessário
-
 # COPIA DOS BACKUP SEM DATA
 while COUNT <= MAX_COUNT:
     try:
         DIR_BACKUP = configad['NOME_BACKUP'][f'DIR_BACKUP_{COUNT}']
         DIR_NOME = configad['NOME_ARQUIVOS'][f'DIR_BACKUP_{COUNT}']
-        # Faça algo com DIR_LOCAL e DIR_BACKUP
-        try:
-            arquivo = shutil.copyfile(src=DIR_BACKUP, dst=f'{DIR_BACKUP_SAVE}/{DIR_NOME}')
-            print(f'Copiando Arquivo!: {arquivo}')
-        except:
-            pass
-
+        arquivo = shutil.copyfile(src=DIR_BACKUP, dst=f'{DIR_BACKUP_SAVE}/{DIR_NOME}')
+        debug(f'{arquivo}: Arquivo Copiado!')
 
     except KeyError as erro:
-        # Se a chave não existir no dicionário, trate o erro
-        print(f"Chave não encontrada: {erro}")
-        break  # Sai do loop se uma chave não for encontrada
+        debug(f'Arquivo não encontrado {erro}')
+        break
 
     COUNT += 1
